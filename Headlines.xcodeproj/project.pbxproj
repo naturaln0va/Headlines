@@ -24,6 +24,7 @@
 		484D3139231DA94C0035B7A0 /* CGSize+Additions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 484D3138231DA94C0035B7A0 /* CGSize+Additions.swift */; };
 		484D313B231DA9860035B7A0 /* String+Additions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 484D313A231DA9860035B7A0 /* String+Additions.swift */; };
 		484D313D231DAC650035B7A0 /* URL+Additions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 484D313C231DAC650035B7A0 /* URL+Additions.swift */; };
+		484D313F231DADF70035B7A0 /* DispatchQueue+Delay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 484D313E231DADF70035B7A0 /* DispatchQueue+Delay.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,6 +47,7 @@
 		484D3138231DA94C0035B7A0 /* CGSize+Additions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGSize+Additions.swift"; sourceTree = "<group>"; };
 		484D313A231DA9860035B7A0 /* String+Additions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Additions.swift"; sourceTree = "<group>"; };
 		484D313C231DAC650035B7A0 /* URL+Additions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+Additions.swift"; sourceTree = "<group>"; };
+		484D313E231DADF70035B7A0 /* DispatchQueue+Delay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DispatchQueue+Delay.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -149,6 +151,7 @@
 			isa = PBXGroup;
 			children = (
 				484D3138231DA94C0035B7A0 /* CGSize+Additions.swift */,
+				484D313E231DADF70035B7A0 /* DispatchQueue+Delay.swift */,
 				484D313A231DA9860035B7A0 /* String+Additions.swift */,
 				484D3134231DA8590035B7A0 /* UIImage+Additions.swift */,
 				484D313C231DAC650035B7A0 /* URL+Additions.swift */,
@@ -235,6 +238,7 @@
 				484D3124231D887E0035B7A0 /* HeadlinePage.swift in Sources */,
 				48210625231D73C900EFC0A4 /* AppDelegate.swift in Sources */,
 				484D313B231DA9860035B7A0 /* String+Additions.swift in Sources */,
+				484D313F231DADF70035B7A0 /* DispatchQueue+Delay.swift in Sources */,
 				48210627231D73C900EFC0A4 /* SceneDelegate.swift in Sources */,
 				484D3137231DA9060035B7A0 /* URLSession+Image.swift in Sources */,
 				484D311D231D832E0035B7A0 /* APIClient.swift in Sources */,

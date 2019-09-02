@@ -9,7 +9,7 @@ struct Headline: Codable {
         case title
         case description
         case url
-        case imageURL = "urlToImage"
+        case urlToImage
         case date = "publishedAt"
     }
     
@@ -21,9 +21,17 @@ struct Headline: Codable {
     let source: Source
     let author: String?
     let title: String
-    let description: String
+    let description: String?
     let url: URL
-    let imageURL: URL?
+    let urlToImage: String?
     let date: Date
+    
+    var imageURL: URL? {
+        guard let urlString = urlToImage else {
+            return nil
+        }
+        
+        return URL(string: urlString)
+    }
     
 }

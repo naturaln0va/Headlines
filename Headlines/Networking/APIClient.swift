@@ -124,10 +124,10 @@ struct APIClient {
                 completion(.failure(.requestFailed))
                 return
             }
-                        
+            
             completion(.success(APIResponse<Data?>(statusCode: httpResponse.statusCode, body: data)))
         }
         task.resume()
-    }    
+    }
     
 }
