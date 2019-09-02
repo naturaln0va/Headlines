@@ -8,6 +8,8 @@ class HeadlinesViewController: UITableViewController {
     private var headlines = [Headline]()
     private let cellIdentifier = "reuseIdentifier"
     
+    private let imageCache = NSCache<NSURL, UIImage>()
+    
     init() {
         guard let filePath = Bundle.main.url(forResource: "api_key", withExtension: "txt"), let apiKey = try? String(contentsOf: filePath) else {
             fatalError("An API key is needed. Get one here: https://newsapi.org/register")
@@ -26,6 +28,12 @@ class HeadlinesViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        tableView.register(
+            UINib(nibName: HeadlineCell.identifier, bundle: nil),
+            forCellReuseIdentifier: HeadlineCell.identifier
+        )
+        tableView.rowHeight = UITableView.automaticDimension
         
         fetchData()
         clearsSelectionOnViewWillAppear = true
@@ -67,14 +75,28 @@ class HeadlinesViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        var cell: UITableViewCell! = tableView.dequeueReusableCell(withIdentifier: cellIdentifier)
-        if cell == nil {
-            cell = UITableViewCell(style: .subtitle, reuseIdentifier: cellIdentifier)
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: HeadlineCell.identifier) as? HeadlineCell else {
+            fatalError()
         }
         
         let headline = headlines[indexPath.row]
-        cell.textLabel?.text = headline.title
-        cell.detailTextLabel?.text = headline.description
+        cell.configure(with: headline)
+        
+        if let imageURL = headline.imageURL {
+            if let image = imageCache.object(forKey: imageURL as NSURL) {
+                cell.iconImageView.image = image
+            }
+            else {
+                URLSession.requestImage(at: imageURL, size: CGSize(square: 96)) { image in
+                    guard let image = image else {
+                        return
+                    }
+                    
+                    self.imageCache.setObject(image, forKey: imageURL as NSURL)
+                    cell.iconImageView.image = image
+                }
+            }
+        }
 
         return cell
     }

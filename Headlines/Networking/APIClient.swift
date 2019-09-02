@@ -124,14 +124,10 @@ struct APIClient {
                 completion(.failure(.requestFailed))
                 return
             }
-            
-            if let responseData = data, let json = try? JSONSerialization.jsonObject(with: responseData, options: .allowFragments) as? [String: Any] {
-                print(json)
-            }
-            
+                        
             completion(.success(APIResponse<Data?>(statusCode: httpResponse.statusCode, body: data)))
         }
         task.resume()
-    }
+    }    
     
 }
