@@ -39,10 +39,10 @@ struct APIRequest {
         self.path = path
     }
 
-    init<Body: Encodable>(method: HTTPMethod, path: String, body: Body, encoder: JSONEncoder = .init()) throws {
+    init<Body: Encodable>(method: HTTPMethod, path: String, body: Body) throws {
         self.method = method
         self.path = path
-        self.body = try encoder.encode(body)
+        self.body = try JSONEncoder().encode(body)
     }
     
 }
@@ -63,7 +63,10 @@ extension APIResponse where Body == Data? {
             throw APIError.decodingFailure
         }
         
-        let decodedJSON = try JSONDecoder().decode(BodyType.self, from: data)
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        
+        let decodedJSON = try decoder.decode(BodyType.self, from: data)
         return APIResponse<BodyType>(statusCode: statusCode, body: decodedJSON)
     }
     
@@ -86,8 +89,13 @@ struct APIClient {
 
     typealias APIClientCompletion = (APIResult<Data?>) -> Void
 
-    private let session = URLSession.shared
-    private let baseURL = URL(string: "https://jsonplaceholder.typicode.com")!
+    private let apiKey: String
+    private let session: URLSession = .shared
+    private let baseURL = URL(string: "https://newsapi.org/v2")!
+    
+    init(apiKey: String) {
+        self.apiKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
 
     func perform(_ request: APIRequest, _ completion: @escaping APIClientCompletion) {
         var urlComponents = URLComponents()
@@ -108,11 +116,17 @@ struct APIClient {
         request.headers?.forEach {
             urlRequest.addValue($0.value, forHTTPHeaderField: $0.field)
         }
+        
+        urlRequest.addValue(apiKey, forHTTPHeaderField: "X-Api-Key")
 
-        let task = session.dataTask(with: url) { data, response, error in
+        let task = session.dataTask(with: urlRequest) { data, response, error in
             guard let httpResponse = response as? HTTPURLResponse else {
                 completion(.failure(.requestFailed))
                 return
+            }
+            
+            if let responseData = data, let json = try? JSONSerialization.jsonObject(with: responseData, options: .allowFragments) as? [String: Any] {
+                print(json)
             }
             
             completion(.success(APIResponse<Data?>(statusCode: httpResponse.statusCode, body: data)))

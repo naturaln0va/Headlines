@@ -128,3 +128,4 @@ iOSInjectionProject/
 **/xcshareddata/WorkspaceSettings.xcsettings
 
 # End of https://www.gitignore.io/api/xcode,swift,macos
+/Headlines/Assets/api_key.txt

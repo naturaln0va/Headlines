@@ -13,7 +13,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = UIWindow(windowScene: windowScene)
         self.window = window
         
-        window.rootViewController = HeadlinesViewController()
+        window.rootViewController = UINavigationController(rootViewController: HeadlinesViewController())
         window.makeKeyAndVisible()
     }
 
