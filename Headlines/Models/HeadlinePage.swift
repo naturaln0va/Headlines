@@ -13,9 +13,4 @@ struct HeadlinePage: Codable {
     let totalResults: Int
     let headlines: [Headline]
     
-    var hasNextPage: Bool {
-        // default page size is 20
-        return totalResults > 20
-    }
-    
 }

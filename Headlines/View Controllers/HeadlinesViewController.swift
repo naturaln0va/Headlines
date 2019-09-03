@@ -36,6 +36,9 @@ class HeadlinesViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        navigationController?.navigationBar.prefersLargeTitles = true
+        clearsSelectionOnViewWillAppear = true
+
         tableView.register(
             UINib(nibName: HeadlineCell.identifier, bundle: nil),
             forCellReuseIdentifier: HeadlineCell.identifier
@@ -43,9 +46,16 @@ class HeadlinesViewController: UITableViewController {
         tableView.rowHeight = UITableView.automaticDimension
         
         setUpRefreshControl()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        guard isMovingToParent else {
+            return
+        }
         
         fetchData()
-        clearsSelectionOnViewWillAppear = true
     }
     
     // MARK: - Actions
@@ -53,6 +63,7 @@ class HeadlinesViewController: UITableViewController {
     @objc private func refreshDidBegin(_ sender: UIRefreshControl) {
         currentPage = 1
         headlines.removeAll()
+        tableView.reloadData()
         
         fetchData {
             DispatchQueue.delay(0.5) {
@@ -83,50 +94,43 @@ class HeadlinesViewController: UITableViewController {
         
         isLoadingPage = true
         
+        var didStartRefresh = false
+        if refreshControl?.isRefreshing == false && currentPage == 1 {
+            didStartRefresh = true
+            refreshControl?.beginRefreshing()
+        }
+        
+        let pageSize = 20
         var request = APIRequest(method: .get, path: "top-headlines")
         request.queryItems = [
             URLQueryItem(name: "country", value: "us"),
-            URLQueryItem(name: "page", value: String(currentPage))
+            URLQueryItem(name: "page", value: String(currentPage)),
+            URLQueryItem(name: "pageSize", value: String(pageSize))
         ]
-        
+                
         client.perform(request) { result in
             switch result {
             case .success(let response):
-                do {
-                    let response = try response.decode(to: HeadlinePage.self)
+                if let response = try? response.decode(to: HeadlinePage.self) {
                     let page = response.body
                     self.headlines.append(contentsOf: page.headlines)
-                    self.currentPage = page.hasNextPage ? self.currentPage + 1 : 0
+                    self.currentPage = self.headlines.count < page.totalResults ? self.currentPage + 1 : 0
                     
                     DispatchQueue.main.async {
                         self.tableView.reloadData()
                     }
                 }
-                catch {
-                    let errorMessage = "Error: \(error.localizedDescription)"
-                    
-                    print(errorMessage)
+                else if let error = try? response.decode(to: HeadlineError.self) {
+                    if error.body.isMaximumResultsReached {
+                        self.currentPage = 0
+                    }
+                    else {
+                        print("API error: \(error.body.description)")
+                    }
                 }
-//                if let response = try? response.decode(to: HeadlinePage.self) {
-//                    let page = response.body
-//                    self.headlines.append(contentsOf: page.headlines)
-//                    self.currentPage = page.hasNextPage ? self.currentPage + 1 : 0
-//
-//                    DispatchQueue.main.async {
-//                        self.tableView.reloadData()
-//                    }
-//                }
-//                else if let error = try? response.decode(to: HeadlineError.self) {
-//                    if error.body.isMaximumResultsReached {
-//                        self.currentPage = 0
-//                    }
-//                    else {
-//                        print("API error: \(error.body.description)")
-//                    }
-//                }
-//                else {
-//                    print("Decoding failed")
-//                }
+                else {
+                    print("Decoding failed")
+                }
             case .failure:
                 print("The network request failed")
             }
@@ -134,6 +138,12 @@ class HeadlinesViewController: UITableViewController {
             self.isLoadingPage = false
             
             DispatchQueue.main.async {
+                if didStartRefresh {
+                    DispatchQueue.delay(0.5) {
+                        self.refreshControl?.endRefreshing()
+                    }
+                }
+                
                 completion?()
             }
         }
