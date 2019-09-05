@@ -10,6 +10,8 @@ class HeadlinesViewController: UITableViewController {
     
     private lazy var dataSource = createDataSource()
     
+    private let activityIndicator = UIActivityIndicatorView()
+    
     init() {
         guard let filePath = Bundle.main.url(forResource: "api_key", withExtension: "txt"), let apiKey = try? String(contentsOf: filePath) else {
             fatalError("An API key is needed. Get one here: https://newsapi.org/register")
@@ -29,6 +31,15 @@ class HeadlinesViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        activityIndicator.hidesWhenStopped = true
+        view.addSubview(activityIndicator)
+        
+        NSLayoutConstraint.activate([
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 50)
+        ])
+        
         navigationController?.navigationBar.prefersLargeTitles = true
         clearsSelectionOnViewWillAppear = true
         
@@ -38,15 +49,8 @@ class HeadlinesViewController: UITableViewController {
         )
         tableView.rowHeight = UITableView.automaticDimension
         tableView.dataSource = dataSource
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
         
-        guard isMovingToParent else {
-            return
-        }
-        
+        activityIndicator.startAnimating()
         fetchData()
     }
         
@@ -68,7 +72,7 @@ class HeadlinesViewController: UITableViewController {
                     self.appendHeadlines(page.headlines)
                     
                     DispatchQueue.main.async {
-                        self.tableView.reloadData()
+                        self.activityIndicator.stopAnimating()
                     }
                 }
                 else if let error = try? response.decode(to: HeadlineError.self) {
@@ -123,8 +127,11 @@ internal extension HeadlinesViewController {
         var snapshot = NSDiffableDataSourceSnapshot<HeadlineSection, Headline>()
         
         snapshot.appendSections(HeadlineSection.allCases)
-        snapshot.appendItems(headlines, toSection: .content)
 
+        dataSource.apply(snapshot, animatingDifferences: false)
+        
+        snapshot.appendItems(headlines, toSection: .content)
+        
         dataSource.apply(snapshot, animatingDifferences: animated)
     }
     
