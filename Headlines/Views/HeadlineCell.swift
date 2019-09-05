@@ -15,6 +15,7 @@ class HeadlineCell: UITableViewCell {
 
         iconImageView.layer.cornerRadius = 3
         iconImageView.backgroundColor = .systemGroupedBackground
+        websiteLabel.font = .monospacedSystemFont(ofSize: 14, weight: .regular)
     }
     
     override func prepareForReuse() {

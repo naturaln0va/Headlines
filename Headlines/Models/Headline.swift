@@ -1,10 +1,9 @@
 
 import Foundation
 
-struct Headline: Codable {
+struct Headline: Codable, Hashable {
     
     private enum CodingKeys: String, CodingKey {
-        case source
         case author
         case title
         case description
@@ -13,12 +12,6 @@ struct Headline: Codable {
         case date = "publishedAt"
     }
     
-    struct Source: Codable {
-        let id: String?
-        let name: String?
-    }
-    
-    let source: Source
     let author: String?
     let title: String
     let description: String?
